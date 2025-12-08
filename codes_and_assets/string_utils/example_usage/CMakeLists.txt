@@ -1,0 +1,2 @@
+add_executable(example_string_splits example_string_splits.cpp)
+target_link_libraries(example_string_splits PRIVATE string_splits ExampleUtils)
