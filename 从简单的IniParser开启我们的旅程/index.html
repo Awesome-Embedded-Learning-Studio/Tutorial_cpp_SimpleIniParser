@@ -1,0 +1,1233 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Awesome-Embedded-Learning-Studio的常用枸橘教程">
+      
+      
+        <meta name="author" content="CharlieChen">
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../%E5%88%86%E8%A7%A3%E9%9C%80%E6%B1%82%E2%80%94%E2%80%94%E5%88%A8%E6%9E%90split/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>现代C++工程实践：简单的IniParser 1 - Tutorial_EmbeddedCommonTools的文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#现代c工程实践简单的iniparser-1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href=".." title="Tutorial_EmbeddedCommonTools的文档" class="md-header__button md-logo" aria-label="Tutorial_EmbeddedCommonTools的文档" data-md-component="logo">
+      
+  <img src="../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tutorial_EmbeddedCommonTools的文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              现代C++工程实践：简单的IniParser 1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  现代C++工程实践：简单的IniParser 1
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../%E5%88%86%E8%A7%A3%E9%9C%80%E6%B1%82%E2%80%94%E2%80%94%E5%88%A8%E6%9E%90split/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  现代C++工程实践：简单的IniParser2：分解需求与编写split
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../%E6%94%B9%E8%BF%9B%E6%88%91%E4%BB%AC%E7%9A%84split/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  现代C++工程实践：简单的IniParser3——改进我们的split
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Tutorial_EmbeddedCommonTools的文档" class="md-nav__button md-logo" aria-label="Tutorial_EmbeddedCommonTools的文档" data-md-component="logo">
+      
+  <img src="../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    Tutorial_EmbeddedCommonTools的文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    现代C++工程实践：简单的IniParser 1
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    现代C++工程实践：简单的IniParser 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#前言" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        前言
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#从目的出发" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从目的出发
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#什么是ini文件条条框框列出来" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        什么是Ini文件？条条框框列出来！
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="什么是Ini文件？条条框框列出来！">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#空行允许需忽略" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        空行允许，需忽略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#注释支持两种前缀--和-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        注释支持两种前缀 ; 和 #
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="注释支持两种前缀 ; 和 #">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#行首注释" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        行首注释：
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#行尾注释inline-comment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        行尾注释（inline comment）：
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section节定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section（节）定义
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#自动归并到上一级" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        自动归并到上一级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-value-语法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key-Value 语法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#键key的规范" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        键（Key）的规范
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#值value的规范" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        值（Value）的规范
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="值（Value）的规范">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#未加引号的值" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        未加引号的值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#使用双引号包裹的值" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        使用双引号包裹的值
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-comment-规则" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline comment 规则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#转义字符处理示例中有体现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        转义字符处理（示例中有体现）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多个等号的情况" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        多个等号的情况
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ini-文件解析器支持的语法规范" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        INI 文件解析器支持的语法规范
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="INI 文件解析器支持的语法规范">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#基础结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        基础结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#注释" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        注释
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key-Value
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-两种模式" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value 两种模式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value 两种模式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-未引号值" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 未引号值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-双引号值-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 双引号值 "value"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#特殊-value-情况" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        特殊 value 情况
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#继续" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        继续
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E5%88%86%E8%A7%A3%E9%9C%80%E6%B1%82%E2%80%94%E2%80%94%E5%88%A8%E6%9E%90split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    现代C++工程实践：简单的IniParser2：分解需求与编写split
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E6%94%B9%E8%BF%9B%E6%88%91%E4%BB%AC%E7%9A%84split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    现代C++工程实践：简单的IniParser3——改进我们的split
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="现代c工程实践简单的iniparser-1">现代C++工程实践：简单的IniParser 1<a class="headerlink" href="#现代c工程实践简单的iniparser-1" title="链接到此章节">&para;</a></h1>
+<h2 id="前言">前言<a class="headerlink" href="#前言" title="链接到此章节">&para;</a></h2>
+<p>这是笔者准备开的一个新坑，一个很自然的问题就是——笔者为什么要写这个系列的博客，他跟我们的其他C++工程教程有什么区别呢？</p>
+<p>笔者注意到，大部分市场上的教程似乎都是语法律师，这不奇怪。毕竟，连如何编写一段可以运行的C++程序都做不到的人，是没办法继续<strong>使用C++解决实际问题的</strong>，就像你不可能指望一个连话都不会说的哑巴去做能说会道的销售一样。所以笔者建议你，如果你还没有学会如何编写Hello World，还是不要继续我们的旅程，也许其他大佬的C++教程会更加适合您。</p>
+<p>但是笔者注意到，不少人在啃完厚厚的《C++ Primer》之后就不知道做什么了，市面上大家也只会呼呼塞给你各式各样的源码，然后一走了之，这对于新手而言的确有些残酷了（实际上，直到笔者学习C++一年后才有勇气去看看C++一些大型工程的源代码，这其中也算是克服了不少的心里困难）。笔者注意到，最大批的人只是在教授你如何编写符合C++语法的代码；剩下的，如何使用C++来解决工程实际问题，原谅笔者孤陋寡闻，实在没看到太多的人在做。所以笔者决定自己做一个尝试——即从工程实际反向思考我们应该如何选择更好的编写C++代码，而不是为了使用现代的C++特性炫技才刻意的解决问题（这是一种本末倒置，笔者一向认为技术是解决问题的，而不是装逼的）。笔者水平不佳，自己也是在一边编写一边尝试思考，给看官分析笔者的思路。如果有任何您不满意，或者是您认为存在错误的地方，欢迎来到<a href="https://github.com/Awesome-Embedded-Learning-Studio/Tutorial_cpp_SimpleIniParser/">Awesome-Embedded-Learning-Studio/Tutorial_cpp_SimpleIniParser</a>吐槽！</p>
+<h2 id="从目的出发">从目的出发<a class="headerlink" href="#从目的出发" title="链接到此章节">&para;</a></h2>
+<p>不要着急动手，假设，我们编写代码的时候，的确遇到了一个问题——手头没有ini parser，需要我们自己写一个（现实生活中很不可能，大把的IniParser随便用，Python甚至内置了相关的处理的库，C++至少我知道Qt有QSettings）。</p>
+<p>所以，我们的目的很明确了——编写一个简单的Ini Parser，使其基本可以完成基本.ini文件的解析。但是这个需求我相信聪明的您看到这个仓库的时候脑子就有这个概念了。所以下一步，我们需要观察<strong>被解决问题的对象特征是如何的。</strong></p>
+<p>解析ini文件，我们就需要Ini文件的基本规范。后续的改进，是伴随着我们发现了本应该完成的功能但是挂了bug，排查修复改进；亦或者是对被建模对象更进一步的认识，再进一步迭代（比如说后面你的用户扔了Request：嘿！你搞错了，这个在规范中是支持的！你返回了我不期待的结果）。所以，为了进一步前进。我们还需要了解一下Ini文件的基础规范是如何的。</p>
+<h2 id="什么是ini文件条条框框列出来">什么是Ini文件？条条框框列出来！<a class="headerlink" href="#什么是ini文件条条框框列出来" title="链接到此章节">&para;</a></h2>
+<blockquote>
+<p>如果您对ini文件足够熟悉，可以直接跳过本小节——没必要在这里浪费事件！</p>
+</blockquote>
+<p><strong>INI 文件（Initialization File）</strong> 是一种非常古老、轻量且常用的配置文件格式，最早来源于 Windows 系统（Windows 3.0 时代）。它的核心目标就是使用 <em>简单</em>、<em>可读性强</em> 的文本格式存储分段式配置。</p>
+<blockquote>
+<p>笔者PS：就是因为他足够简单我才选的，要是parse其他东西，我估计我是写不完（笑</p>
+</blockquote>
+<p><code>Ini</code>文件是的确有在用的——Windows 下大量软件使用 INI（尽管，现代软件也可能用 JSON、YAML）。对于一些比较简单的场景，比如说嵌入式设备，特别是 MCU、Linux Embedded 设备环境中，INI 因为简单可靠，非常适合保存少量 Key-Value 配置。</p>
+<blockquote>
+<p>扩展一下，后续我们的朋友在做越来越大的系统的时候，肯定还要遇到指导软件系统初始化状态设置的问题，所以这里给一个小表格：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>结构化能力</th>
+<th>可读性</th>
+<th>常见用途</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>INI</strong></td>
+<td>低</td>
+<td>高</td>
+<td>软件配置</td>
+<td>简单、解析器实现极轻量</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td>中等</td>
+<td>中等</td>
+<td>Web、API</td>
+<td>严格、结构化好、注释不支持</td>
+</tr>
+<tr>
+<td><strong>YAML</strong></td>
+<td>高</td>
+<td>高</td>
+<td>DevOps、配置</td>
+<td>支持层级、可读性强，但语法复杂</td>
+</tr>
+<tr>
+<td><strong>TOML</strong></td>
+<td>高</td>
+<td>高</td>
+<td>Rust 项目生态</td>
+<td>类 INI，但更现代、更严格、更结构化</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>Ini文件的格式大致上就是如下的语法，笔者先给出一段合法的ini file</p>
+<div class="language-ini highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><a href="#__codelineno-0-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="c1">; this is a comment</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><a href="#__codelineno-0-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="c1"># also a comment</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><a href="#__codelineno-0-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="c1">; top-level keys</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><a href="#__codelineno-0-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="na">topkey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">topvalue</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><a href="#__codelineno-0-5"><span class="linenos" data-linenos=" 5 "></span></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><a href="#__codelineno-0-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="k">[server]</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><a href="#__codelineno-0-7"><span class="linenos" data-linenos=" 7 "></span></a><span class="na">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">example.com</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><a href="#__codelineno-0-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="na">port</span><span class="o">=</span><span class="w"> </span><span class="s">8080</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><a href="#__codelineno-0-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/api/v1/resource&quot;</span><span class="w"> </span><span class="c1">; inline comment</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><a href="#__codelineno-0-10"><span class="linenos" data-linenos="10 "></span></a><span class="na">escaped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;line\nnew&quot;</span><span class="w">  </span><span class="c1"># another inline comment</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><a href="#__codelineno-0-11"><span class="linenos" data-linenos="11 "></span></a>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><a href="#__codelineno-0-12"><span class="linenos" data-linenos="12 "></span></a><span class="k">[database]</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><a href="#__codelineno-0-13"><span class="linenos" data-linenos="13 "></span></a><span class="na">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">dbuser</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><a href="#__codelineno-0-14"><span class="linenos" data-linenos="14 "></span></a><span class="na">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;p@ss;word&quot;</span><span class="w"> </span><span class="c1">; note semicolon inside quoted value</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><a href="#__codelineno-0-15"><span class="linenos" data-linenos="15 "></span></a><span class="na">timeout</span><span class="o">=</span><span class="s">30</span>
+</span></code></pre></div>
+<h4 id="空行允许需忽略">空行允许，需忽略<a class="headerlink" href="#空行允许需忽略" title="链接到此章节">&para;</a></h4>
+<p>空行可随处出现，不影响解析。</p>
+<hr />
+<h4 id="注释支持两种前缀--和-">注释支持两种前缀 <code>;</code> 和 <code>#</code><a class="headerlink" href="#注释支持两种前缀--和-" title="链接到此章节">&para;</a></h4>
+<h5 id="行首注释">行首注释：<a class="headerlink" href="#行首注释" title="链接到此章节">&para;</a></h5>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><a href="#__codelineno-1-1"><span class="linenos" data-linenos="1 "></span></a>; comment
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><a href="#__codelineno-1-2"><span class="linenos" data-linenos="2 "></span></a># comment
+</span></code></pre></div>
+<h5 id="行尾注释inline-comment">行尾注释（<strong>inline comment</strong>）：<a class="headerlink" href="#行尾注释inline-comment" title="链接到此章节">&para;</a></h5>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><a href="#__codelineno-2-1"><span class="linenos" data-linenos="1 "></span></a>key = value ; inline comment
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><a href="#__codelineno-2-2"><span class="linenos" data-linenos="2 "></span></a>key = value # inline comment
+</span></code></pre></div>
+<p>但注意：<strong>如果注释符号在字符串引号内部，应视为普通字符</strong>，如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><a href="#__codelineno-3-1"><span class="linenos" data-linenos="1 "></span></a>password = &quot;p@ss;word&quot; ; &lt;-- 此处 ; 是值的一部分
+</span></code></pre></div>
+<hr />
+<h4 id="section节定义">Section（节）定义<a class="headerlink" href="#section节定义" title="链接到此章节">&para;</a></h4>
+<p>以方括号包裹：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><a href="#__codelineno-4-1"><span class="linenos" data-linenos="1 "></span></a>[server]
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><a href="#__codelineno-4-2"><span class="linenos" data-linenos="2 "></span></a>[database]
+</span></code></pre></div>
+<p>Section 名称：</p>
+<ul>
+<li>通常不允许嵌套（例如 <code>[a.b]</code> 不表示树形）</li>
+<li>允许任意可打印字符（不包含 <code>]</code>）</li>
+</ul>
+<hr />
+<h4 id="自动归并到上一级">自动归并到上一级<a class="headerlink" href="#自动归并到上一级" title="链接到此章节">&para;</a></h4>
+<p>如你的示例：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><a href="#__codelineno-5-1"><span class="linenos" data-linenos="1 "></span></a>topkey = topvalue
+</span></code></pre></div>
+<p>在没有 section 时，它属于 <em>default section</em> 或 <em>空 section</em>。</p>
+<p>你的解析器应支持：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><a href="#__codelineno-6-1"><span class="linenos" data-linenos="1 "></span></a>get(&quot;&quot;, &quot;topkey&quot;) == topvalue
+</span></code></pre></div>
+<hr />
+<h4 id="key-value-语法">Key-Value 语法<a class="headerlink" href="#key-value-语法" title="链接到此章节">&para;</a></h4>
+<p>基本形式：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><a href="#__codelineno-7-1"><span class="linenos" data-linenos="1 "></span></a>key = value
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><a href="#__codelineno-7-2"><span class="linenos" data-linenos="2 "></span></a>key= value
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><a href="#__codelineno-7-3"><span class="linenos" data-linenos="3 "></span></a>key =value
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><a href="#__codelineno-7-4"><span class="linenos" data-linenos="4 "></span></a>key=value
+</span></code></pre></div>
+<p>等号两侧可有可无空格。</p>
+<hr />
+<h4 id="键key的规范">键（Key）的规范<a class="headerlink" href="#键key的规范" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>通常只允许 ASCII 字母数字，下划线</li>
+<li>但很多 parser接受任意可打印字符直到遇到 <code>=</code></li>
+<li>Key 前后应 trim</li>
+</ul>
+<hr />
+<h4 id="值value的规范">值（Value）的规范<a class="headerlink" href="#值value的规范" title="链接到此章节">&para;</a></h4>
+<p>值的来源分两类：</p>
+<hr />
+<h5 id="未加引号的值">未加引号的值<a class="headerlink" href="#未加引号的值" title="链接到此章节">&para;</a></h5>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><a href="#__codelineno-8-1"><span class="linenos" data-linenos="1 "></span></a>host = example.com
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><a href="#__codelineno-8-2"><span class="linenos" data-linenos="2 "></span></a>port = 8080
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><a href="#__codelineno-8-3"><span class="linenos" data-linenos="3 "></span></a>timeout=30
+</span></code></pre></div>
+<p>特征：</p>
+<ul>
+<li>从 <code>=</code> 后直到行尾（或注释符号前）为 value</li>
+<li>需要 <code>trim</code></li>
+<li>支持空值（例如 <code>key =</code>）</li>
+</ul>
+<hr />
+<h5 id="使用双引号包裹的值">使用双引号包裹的值<a class="headerlink" href="#使用双引号包裹的值" title="链接到此章节">&para;</a></h5>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><a href="#__codelineno-9-1"><span class="linenos" data-linenos="1 "></span></a>path = &quot;/api/v1/resource&quot;
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><a href="#__codelineno-9-2"><span class="linenos" data-linenos="2 "></span></a>escaped = &quot;line\nnew&quot;
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><a href="#__codelineno-9-3"><span class="linenos" data-linenos="3 "></span></a>password = &quot;p@ss;word&quot;
+</span></code></pre></div>
+<p>特征：</p>
+<ul>
+<li><code>"value..."</code> 的内容为实际值</li>
+<li>引号内允许存在：</li>
+<li><code>;</code>、<code>#</code> 等字符</li>
+<li>转义字符，如 <code>\n</code>、<code>\"</code></li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><a href="#__codelineno-10-1"><span class="linenos" data-linenos="1 "></span></a>&quot;line\nnew&quot;   →  line&lt;newline&gt;new
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><a href="#__codelineno-10-2"><span class="linenos" data-linenos="2 "></span></a>&quot;p@ss;word&quot;   →  p@ss;word
+</span></code></pre></div>
+<p><strong>引号内部不截断注释，不提前结束 value。</strong></p>
+<hr />
+<h4 id="inline-comment-规则">Inline comment 规则<a class="headerlink" href="#inline-comment-规则" title="链接到此章节">&para;</a></h4>
+<p>如下两种属于 inline comment：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><a href="#__codelineno-11-1"><span class="linenos" data-linenos="1 "></span></a>value ; comment
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><a href="#__codelineno-11-2"><span class="linenos" data-linenos="2 "></span></a>value # comment
+</span></code></pre></div>
+<p><strong>但前提是当前处于“引号外部”状态。</strong></p>
+<hr />
+<h4 id="转义字符处理示例中有体现">转义字符处理（示例中有体现）<a class="headerlink" href="#转义字符处理示例中有体现" title="链接到此章节">&para;</a></h4>
+<p>如：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><a href="#__codelineno-12-1"><span class="linenos" data-linenos="1 "></span></a>escaped = &quot;line\nnew&quot;
+</span></code></pre></div>
+<p><code>\n</code> 应转换为换行字符。</p>
+<hr />
+<h4 id="多个等号的情况">多个等号的情况<a class="headerlink" href="#多个等号的情况" title="链接到此章节">&para;</a></h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><a href="#__codelineno-13-1"><span class="linenos" data-linenos="1 "></span></a>a=b=c
+</span></code></pre></div>
+<p>常见处理方式：</p>
+<ul>
+<li>以第一个 <code>=</code> 左边为 key</li>
+<li>右边整个 <code>b=c</code> 作为 value</li>
+</ul>
+<hr />
+<h2 id="ini-文件解析器支持的语法规范">INI 文件解析器支持的语法规范<a class="headerlink" href="#ini-文件解析器支持的语法规范" title="链接到此章节">&para;</a></h2>
+<h3 id="基础结构">基础结构<a class="headerlink" href="#基础结构" title="链接到此章节">&para;</a></h3>
+<ul>
+<li>文件可包含空行、注释、节（Section）、键值对。</li>
+<li>字符编码默认 UTF-8。</li>
+</ul>
+<h3 id="注释">注释<a class="headerlink" href="#注释" title="链接到此章节">&para;</a></h3>
+<ul>
+<li>行首注释以 <code>;</code> 或 <code>#</code> 开头。</li>
+<li>行内注释（inline comment）以 <code>;</code> 或 <code>#</code> 开始，但仅在<strong>未在引号内</strong>时生效。</li>
+</ul>
+<h3 id="section">Section<a class="headerlink" href="#section" title="链接到此章节">&para;</a></h3>
+<ul>
+<li>形式：<code>[section_name]</code></li>
+<li>Section 之间互相独立。</li>
+<li>未进入任何 Section 时的 key 属于默认的上一级section，如果没有直接归属为""（空节）</li>
+</ul>
+<h3 id="key-value">Key-Value<a class="headerlink" href="#key-value" title="链接到此章节">&para;</a></h3>
+<ul>
+<li>格式：<code>key = value</code>（<code>=</code> 两侧允许空格）</li>
+<li>Key 或 Value 前后空白应 trim。</li>
+<li>Key 允许任意非空白字符（直到 <code>=</code> 为止）。</li>
+<li>一个 key 对应一个字符串值。</li>
+</ul>
+<h3 id="value-两种模式">Value 两种模式<a class="headerlink" href="#value-两种模式" title="链接到此章节">&para;</a></h3>
+<h4 id="1-未引号值">1. 未引号值<a class="headerlink" href="#1-未引号值" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>从 <code>=</code> 后至行尾（或注释符号前）。</li>
+<li>自动 trim。</li>
+</ul>
+<h4 id="2-双引号值-value">2. 双引号值 <code>"value"</code><a class="headerlink" href="#2-双引号值-value" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>内部字符不受 inline comment 限制。</li>
+<li>允许 <code>;</code>、<code>#</code>、其它字符。</li>
+<li>支持转义字符：<code>\n</code>, <code>\"</code>, <code>\\</code> 等。</li>
+</ul>
+<h4 id="特殊-value-情况">特殊 value 情况<a class="headerlink" href="#特殊-value-情况" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><code>key=</code> 允许空值。</li>
+<li><code>a=b=c</code> 解析为 key <code>a</code>，value <code>b=c</code>。</li>
+<li>值尾部注释在引号外时有效：<code>value ; comment</code></li>
+</ul>
+<h2 id="继续">继续<a class="headerlink" href="#继续" title="链接到此章节">&para;</a></h2>
+<p>头大了？没事不要着急。我们一步一步来，工程就是这样，丢给一个我们大概要完成的事情，具体的拆解分析我们的需求步骤，严格评估我们到底要实现什么样的需求，然后一步一步拆解。下一篇，我们开始讨论如何分解这个需求，进一步的完成一些简单的case。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2025年12月9日 09:47:48 CST">2025年12月9日 09:47:48</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2025年12月8日 08:41:03 CST">2025年12月8日 08:41:03</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="上一页: Home">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../%E5%88%86%E8%A7%A3%E9%9C%80%E6%B1%82%E2%80%94%E2%80%94%E5%88%A8%E6%9E%90split/" class="md-footer__link md-footer__link--next" aria-label="下一页: 现代C++工程实践：简单的IniParser2：分解需求与编写split">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                现代C++工程实践：简单的IniParser2：分解需求与编写split
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 CharlieChen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "toc.integrate", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
