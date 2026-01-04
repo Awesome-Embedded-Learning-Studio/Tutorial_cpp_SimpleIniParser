@@ -1,33 +1,252 @@
-#include "string_splits.h"
-#include "string_trim.h"
-#include <iostream>
+#include "ini_parser.h"
+#include "test/test_kit.h"
 
-// CMake
+void test_basic_parsing() {
+  TEST_CASE("Basic Parsing");
+  // 合法的Ini string
+  const char *ini = R"ini(
+key1 = value1
+key2 = value2
+[section1]
+key3 = value3
+)ini";
 
-// demo -> split
-// 可执行文件 demo
-// split ?
-// 可复用的库 Charliechen114514《深入理解C/C++编译技术》
-// 静态库 动态库
-// string_utils/string_splits.cpp -> libuitls.a
-// demo -> libuitls.a
+  IniParser parser;
+  bool ok = parser.parse(ini);
 
-// 正确性
-// cmake 构建系统 几千个文件 上万个文件
+  ASSERT_TRUE(ok, "Parse should succeed");
+  ASSERT_EQ(parser.get("", "key1").value_or(""), "value1", "Top-level key1");
+  ASSERT_EQ(parser.get("", "key2").value_or(""), "value2", "Top-level key2");
+  ASSERT_EQ(parser.get("section1", "key3").value_or(""), "value3",
+            "Section1 key3");
+}
 
-// trim
+void test_comments() {
+  TEST_CASE("Comment Handling");
+
+  const char *ini = R"ini(
+; semicolon comment
+# hash comment
+key1 = value1 ; inline comment
+key2 = value2 # inline hash comment
+key3 = "value;with;semicolons" ; this is a comment
+key4 = "value#with#hashes" # comment
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "key1").value_or(""), "value1",
+            "Value before inline semicolon comment");
+  ASSERT_EQ(parser.get("", "key2").value_or(""), "value2",
+            "Value before inline hash comment");
+  ASSERT_EQ(parser.get("", "key3").value_or(""), "value;with;semicolons",
+            "Quoted semicolons preserved");
+  ASSERT_EQ(parser.get("", "key4").value_or(""), "value#with#hashes",
+            "Quoted hashes preserved");
+}
+
+void test_sections() {
+  TEST_CASE("Section Handling");
+
+  const char *ini = R"ini(
+toplevel = top
+[section1]
+key1 = val1
+[section2]
+key2 = val2
+[section1]
+key3 = val3
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "toplevel").value_or(""), "top", "Top-level key");
+  ASSERT_EQ(parser.get("section1", "key1").value_or(""), "val1",
+            "Section1 first key");
+  ASSERT_EQ(parser.get("section1", "key3").value_or(""), "val3",
+            "Section1 second occurrence");
+  ASSERT_EQ(parser.get("section2", "key2").value_or(""), "val2",
+            "Section2 key");
+}
+
+void test_quoted_values() {
+  TEST_CASE("Quoted Values");
+
+  const char *ini = R"ini(
+single = "quoted value"
+double = "value with spaces"
+empty = ""
+withequals = "key=value"
+mixed = "start"middle"end"
+password = "p@ss;word"
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "single").value_or(""), "quoted value",
+            "Single quoted");
+  ASSERT_EQ(parser.get("", "double").value_or(""), "value with spaces",
+            "Spaces in quotes");
+  ASSERT_EQ(parser.get("", "empty").value_or(""), "", "Empty quotes");
+  ASSERT_EQ(parser.get("", "withequals").value_or(""), "key=value",
+            "Equals in quotes");
+  ASSERT_EQ(parser.get("", "password").value_or(""), "p@ss;word",
+            "Special chars in quotes");
+}
+
+void test_escape_sequences() {
+  TEST_CASE("Escape Sequences");
+
+  const char *ini = R"ini(
+newline = "line1\nline2"
+tab = "col1\tcol2"
+backslash = "path\\to\\file"
+quote = "say \"hello\""
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "newline").value_or(""), "line1\nline2",
+            "Newline escape");
+  ASSERT_EQ(parser.get("", "tab").value_or(""), "col1\tcol2", "Tab escape");
+  ASSERT_EQ(parser.get("", "backslash").value_or(""), "path\\to\\file",
+            "Backslash escape");
+  ASSERT_EQ(parser.get("", "quote").value_or(""), "say \"hello\"",
+            "Quote escape");
+}
+
+void test_whitespace_handling() {
+  TEST_CASE("Whitespace Handling");
+
+  const char *ini = R"ini(
+key1=value1
+key2 = value2
+key3  =  value3
+  key4  =  value4  
+[  section1  ]
+  key5 = value5  
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "key1").value_or(""), "value1", "No spaces");
+  ASSERT_EQ(parser.get("", "key2").value_or(""), "value2", "Normal spaces");
+  ASSERT_EQ(parser.get("", "key3").value_or(""), "value3", "Multiple spaces");
+  ASSERT_EQ(parser.get("", "key4").value_or(""), "value4",
+            "Leading/trailing spaces");
+  ASSERT_EQ(parser.get("section1", "key5").value_or(""), "value5",
+            "Section with spaces");
+}
+
+void test_empty_values() {
+  TEST_CASE("Empty Values");
+
+  const char *ini = R"ini(
+empty1 =
+empty2 = 
+empty3 =   
+quoted_empty = ""
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "empty1").value_or("NONE"), "", "Empty value 1");
+  ASSERT_EQ(parser.get("", "empty2").value_or("NONE"), "", "Empty value 2");
+  ASSERT_EQ(parser.get("", "empty3").value_or("NONE"), "", "Empty value 3");
+  ASSERT_EQ(parser.get("", "quoted_empty").value_or("NONE"), "",
+            "Quoted empty");
+}
+
+void test_multiline_and_continuation() {
+  TEST_CASE("Multiple Values with Equals");
+
+  const char *ini = R"ini(
+equation = a=b=c
+url = http://example.com?param=value&other=data
+)ini";
+
+  IniParser parser;
+  parser.parse(ini);
+
+  ASSERT_EQ(parser.get("", "equation").value_or(""), "a=b=c",
+            "Multiple equals signs");
+  ASSERT_EQ(parser.get("", "url").value_or(""),
+            "http://example.com?param=value&other=data", "URL with params");
+}
+
+void test_complex_real_world() {
+  TEST_CASE("Complex Real-World Example");
+
+  const char *ini = R"ini(
+; Application Configuration
+app_name = MyApp
+version = 1.2.3
+
+[server]
+host = 0.0.0.0
+port = 8080
+ssl = true
+cert_path = "/etc/ssl/certs/server.crt"
+key_path = "/etc/ssl/private/server.key"
+
+[database]
+driver = "postgresql"
+host = db.example.com
+port = 5432
+name = myapp_db
+user = dbuser
+password = "P@ssw0rd!123" ; secure password
+pool_size = 20
+timeout = 30
+
+[logging]
+level = "INFO"
+file = "/var/log/myapp.log"
+max_size = "100MB"
+rotate = true
+
+[cache]
+enabled = true
+type = "redis"
+host = "cache.example.com:6379"
+ttl = 3600
+
+)ini";
+
+  IniParser parser;
+  bool ok = parser.parse(ini);
+
+  ASSERT_TRUE(ok, "Complex INI should parse");
+  ASSERT_EQ(parser.get("", "app_name").value_or(""), "MyApp", "App name");
+  ASSERT_EQ(parser.get("", "version").value_or(""), "1.2.3", "Version");
+  ASSERT_EQ(parser.get("server", "host").value_or(""), "0.0.0.0",
+            "Server host");
+  ASSERT_EQ(parser.get("server", "port").value_or(""), "8080", "Server port");
+  ASSERT_EQ(parser.get("database", "password").value_or(""), "P@ssw0rd!123",
+            "DB password");
+  ASSERT_EQ(parser.get("logging", "level").value_or(""), "INFO", "Log level");
+  ASSERT_EQ(parser.get("cache", "ttl").value_or(""), "3600", "Cache TTL");
+}
+
+// ini parser
 int main() {
-  using namespace cxx_utils::string;
-  std::string kv{"key=value=int"};
-  auto results = splits_v2_fix(kv, '=');
+  test_basic_parsing();
+  test_comments();
+  test_sections();
 
-  for (const auto &each_result : results) {
-    std::cout << each_result << std::endl;
-  }
+  test_quoted_values();
+  test_escape_sequences();
 
-  std::string wait_trim = "   dfniouafdhionhdoiwans   ";
+  test_whitespace_handling();
+  test_empty_values();
 
-  const auto result = trim(wait_trim);
+  test_multiline_and_continuation();
 
-  std::cout << result << std::endl;
+  test_complex_real_world();
 }
